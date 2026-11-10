@@ -14,10 +14,16 @@ ASP.NET Core MVC-приложение на C#, которое:
 - показывает результат импорта: всего строк, успешно импортировано, количество ошибок, список ошибок с номерами строк;
 - показывает список загруженных товаров.
 
-## Структура проекта
+## Требования для запуска
 
-- `src/ECommerceCsvImport` - веб-приложение (Controllers, Models, Services, Views, wwwroot/csv)
-- `tests/ECommerceCsvImport.Tests` - unit-тесты xUnit и тестовые CSV-файлы (testdata)
+- Visual Studio 2026 или Visual Studio 2022 версии 17.13 и новее (нужна для файла решения .slnx), либо .NET SDK 10 и любой редактор кода
+- Git
+
+## Структура решения
+
+- `ECommerceCsvImport` - веб-приложение ASP.NET Core MVC (Controllers, Models, Services, Views)
+- `wwwroot/csv` внутри веб-приложения - файл sample_products.csv и тестовые CSV-файлы для ручной проверки
+- проект тестов xUnit: RepositoryTests, CsvLineParserTests, ProductImportServiceTests (31 тест)
 
 ## Формат CSV
 
@@ -42,14 +48,32 @@ ASP.NET Core MVC-приложение на C#, которое:
 
 ## Запуск
 
+Через Visual Studio: открыть файл `ECommerceCsvImport.slnx`, нажать F5.
+
+Через командную строку из корня репозитория:
+
 ```
-dotnet run --project src/ECommerceCsvImport
+dotnet run --project ECommerceCsvImport
 ```
 
-На странице "Импорт товаров" указать путь `/csv/sample_products.csv` и нажать "Импортировать товары".
+В браузере открыть страницу "Импорт товаров", указать путь `/csv/sample_products.csv` и нажать "Импортировать товары".
 
 ## Тесты
+
+Visual Studio: меню Тест, затем "Запустить все тесты". Или из корня репозитория:
 
 ```
 dotnet test
 ```
+
+## Ручная проверка
+
+| Файл | Результат (всего строк / импортировано / ошибок) |
+|------|--------------------------------------------------|
+| /csv/sample_products.csv | 11 / 11 / 0 |
+| /csv/valid_electronics.csv | 2 / 2 / 0, при повторном импорте 2 / 0 / 2 (артикул уже существует) |
+| /csv/invalid_price.csv | 1 / 0 / 1, строка 2, цена должна быть числом больше 0 |
+| /csv/bad_active.csv | 1 / 0 / 1, значение is_active недопустимо |
+| /csv/missing_brand.csv | 1 / 0 / 1, не указан бренд |
+| /csv/warranty_out_of_range.csv | 1 / 0 / 1, гарантия вне диапазона 0-60 |
+| /csv/empty_file.csv | 0 / 0 / 1, данные для импорта отсутствуют |
